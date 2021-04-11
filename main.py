@@ -1,12 +1,21 @@
 class Square:
-    def __init__(self, blockType, x, y, color):
-        self.blockType = blockType
-        self.x         = x
-        self.y         = y
-        self.color     = color
-        self.compass   = [1,1,1,1]
+    def __init__(self, blockType, x, y, color, start_node, end_node):
+        self.blockType  = blockType
+        self.x          = x
+        self.y          = y
+        self.color      = color
+        self.compass    = [1,1,1,1]
+        self.previous   = None
+        self.start_node = start_node
+        self.end_node   = end_node
 
-def main() :
+def compare_coors(xy1, xy2) :
+    return compare_coor(xy1[0], xy2[0]) and compare_coor(xy1[1], xy2[1]) 
+
+def compare_coor(coor_a, coor_b) :
+    return True if coor_a == coor_b else False
+
+def main(start_coor, end_coor) :
     f = open("maze.txt", "r")
     fileMap = f.read()
     squares = {}
@@ -20,12 +29,12 @@ def main() :
         if value != 'M' and value != 'O' :
             continue
         elif x_coor != 0 and x_coor % 39 == 0 :
-            squares[(x_coor, y_coor)] = Square(value, x_coor, y_coor, color)
+            squares[(x_coor, y_coor)] = Square(value, x_coor, y_coor, color, compare_coors([x_coor, y_coor], start_coor), compare_coors([x_coor, y_coor], end_coor))
             y_coor += 1
             x_coor = 0
             continue
         else :
-           squares[(x_coor, y_coor)] = Square(value, x_coor, y_coor, color)
+            squares[(x_coor, y_coor)] = Square(value, x_coor, y_coor, color, compare_coors([x_coor, y_coor], start_coor), compare_coors([x_coor, y_coor], end_coor))
         
         x_coor += 1
     return squares
@@ -43,12 +52,12 @@ def printMap(squares) :
     
     time.sleep(1)
 
-# load in the file as square objects
-squares = main()
-
 # start and end coor
 start_coor = [2,1]
 end_coor   = [8,35]
+
+# load in the file as square objects
+squares = main(start_coor, end_coor)
 
 # travel coor
 travel_coor = start_coor
@@ -60,9 +69,14 @@ compass = [1,1,1,1]
 import sys
 try :
     trySquare = squares[(travel_coor[0], travel_coor[1])]
-    trySquare.color = "green"
+    trySquare.color    = "green"
+    trySquare.previous = start_coor
     while travel_coor != end_coor :
         printMap(squares)
+
+        if 0 in trySquare.compass == False :
+            break
+
         tryRight  = travel_coor[0] + 1
         trySquare = squares[(tryRight, travel_coor[1])]
         if trySquare.blockType == "O" and trySquare.color != "green" :
