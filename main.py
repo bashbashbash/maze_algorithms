@@ -15,8 +15,11 @@ def compare_coors(xy1, xy2) :
 def compare_coor(coor_a, coor_b) :
     return True if coor_a == coor_b else False
 
+import pathlib
+pathlib.Path().absolute()
 def main(start_coor, end_coor) :
-    f = open("maze.txt", "r")
+    path = str(pathlib.Path().absolute()) + "\maze_algorithms\maze.txt"
+    f = open(path , "r")
     fileMap = f.read()
     squares = {}
     y_coor = 0
@@ -50,7 +53,7 @@ def printMap(squares) :
         if key[0] != 0 and key[0] % 39 == 0 :
             print()
     
-    time.sleep(1)
+    time.sleep(.1)
 
 # start and end coor
 start_coor = [2,1]
@@ -70,7 +73,8 @@ import sys
 try :
     trySquare = squares[(travel_coor[0], travel_coor[1])]
     trySquare.color    = "green"
-    trySquare.previous = start_coor
+    trySquare.previous = None
+    lastTrailSquare    = None
     while travel_coor != end_coor :
         printMap(squares)
 
@@ -79,36 +83,52 @@ try :
 
         tryRight  = travel_coor[0] + 1
         trySquare = squares[(tryRight, travel_coor[1])]
-        if trySquare.blockType == "O" and trySquare.color != "green" :
+        if trySquare.blockType == "O" and trySquare.color != "green" and trySquare.compass[0] == 1 :
             trySquare.color      = "green"
             trySquare.compass[0] = 0
+            trySquare.previous = squares[(travel_coor[0], travel_coor[1])]
+            lastTrailSquare = trySquare.previous
             travel_coor[0]       = tryRight
             continue
         
         tryDown   = travel_coor[1] + 1
         trySquare = squares[(travel_coor[0], tryDown)]
-        if trySquare.blockType == "O" and trySquare.color != "green" :
+        if trySquare.blockType == "O" and trySquare.color != "green" and trySquare.compass[1] == 1 :
             trySquare.color      = "green"
             trySquare.compass[1] = 0
+            trySquare.previous = squares[(travel_coor[0], travel_coor[1])]
+            lastTrailSquare = trySquare.previous
             travel_coor[1]       = tryDown
             continue
 
         tryLeft   = travel_coor[0] - 1
         trySquare = squares[(tryLeft, travel_coor[1])]
-        if trySquare.blockType == "O" and trySquare.color != "green" :
+        if trySquare.blockType == "O" and trySquare.color != "green" and trySquare.compass[2] == 1 :
             trySquare.color      = "green"
             trySquare.compass[2] = 0
+            trySquare.previous = squares[(travel_coor[0], travel_coor[1])]
+            lastTrailSquare = trySquare.previous
             travel_coor[0]       = tryLeft
             continue
 
         tryUp     = travel_coor[1] - 1
         trySquare = squares[(travel_coor[0], tryUp)]
-        if trySquare.blockType == "O" and trySquare.color != "green" :
+        if trySquare.blockType == "O" and trySquare.color != "green" and trySquare.compass[3] == 1 :
             trySquare.color      = "green"
             trySquare.compass[3] = 0
+            trySquare.previous = squares[(travel_coor[0], travel_coor[1])]
+            lastTrailSquare = trySquare.previous
             travel_coor[1]       = tryDown
             continue
 
+        backtrack = False
+        while trySquare.start_node == False :
+            trySquare = lastTrailSquare
+            if 0 in trySquare.compass == True :
+                backtrack = True
+        
+        if backtrack :
+            continue
         print("failed to find a route!")
         break
 except KeyboardInterrupt :
