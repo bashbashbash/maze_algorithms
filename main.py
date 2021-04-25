@@ -53,11 +53,11 @@ def printMap(squares) :
         if key[0] != 0 and key[0] % 39 == 0 :
             print()
     
-    time.sleep(.1)
+    time.sleep(.05)
 
 # start and end coor
 start_coor = [2,1]
-end_coor   = [8,35]
+end_coor   = [35,7]
 
 # load in the file as square objects
 squares = main(start_coor, end_coor)
@@ -83,54 +83,74 @@ try :
 
         tryRight  = travel_coor[0] + 1
         trySquare = squares[(tryRight, travel_coor[1])]
-        if trySquare.blockType == "O" and trySquare.color != "green" and trySquare.compass[0] == 1 :
+        if trySquare.blockType == "O" and trySquare.color == "yellow" and trySquare.compass[0] == 1 :
             trySquare.color      = "green"
             trySquare.compass[0] = 0
-            trySquare.previous = squares[(travel_coor[0], travel_coor[1])]
-            lastTrailSquare = trySquare.previous
+            trySquare.previous   = squares[(travel_coor[0], travel_coor[1])]
+            lastTrailSquare      = trySquare.previous
             travel_coor[0]       = tryRight
             continue
-        
+        if trySquare.blockType != "O" or trySquare.blockType == "M" :
+            trySquare.compass[0] = 0        
+
         tryDown   = travel_coor[1] + 1
         trySquare = squares[(travel_coor[0], tryDown)]
-        if trySquare.blockType == "O" and trySquare.color != "green" and trySquare.compass[1] == 1 :
+        if trySquare.blockType == "O" and trySquare.color == "yellow" and trySquare.compass[1] == 1 :
             trySquare.color      = "green"
             trySquare.compass[1] = 0
             trySquare.previous = squares[(travel_coor[0], travel_coor[1])]
             lastTrailSquare = trySquare.previous
             travel_coor[1]       = tryDown
             continue
-
+        if trySquare.blockType != "O" or trySquare.blockType == "M" :
+            trySquare.compass[1] = 0
+        
         tryLeft   = travel_coor[0] - 1
         trySquare = squares[(tryLeft, travel_coor[1])]
-        if trySquare.blockType == "O" and trySquare.color != "green" and trySquare.compass[2] == 1 :
+        if trySquare.blockType == "O" and trySquare.color == "yellow" and trySquare.compass[2] == 1 :
             trySquare.color      = "green"
             trySquare.compass[2] = 0
             trySquare.previous = squares[(travel_coor[0], travel_coor[1])]
             lastTrailSquare = trySquare.previous
             travel_coor[0]       = tryLeft
             continue
+        if trySquare.blockType != "O" or trySquare.blockType == "M" :
+            trySquare.compass[2] = 0
 
         tryUp     = travel_coor[1] - 1
         trySquare = squares[(travel_coor[0], tryUp)]
-        if trySquare.blockType == "O" and trySquare.color != "green" and trySquare.compass[3] == 1 :
+        if trySquare.blockType == "O" and trySquare.color == "yellow" and trySquare.compass[3] == 1 :
             trySquare.color      = "green"
             trySquare.compass[3] = 0
-            trySquare.previous = squares[(travel_coor[0], travel_coor[1])]
-            lastTrailSquare = trySquare.previous
-            travel_coor[1]       = tryDown
+            trySquare.previous   = squares[(travel_coor[0], travel_coor[1])]
+            lastTrailSquare      = trySquare.previous
+            travel_coor[1]       = tryUp
             continue
+        if trySquare.blockType != "O" or trySquare.blockType == "M" :
+            trySquare.compass[3] = 0
 
         backtrack = False
+        trySquare = squares[(travel_coor[0], travel_coor[1])]
+        trySquare.color = "red"
         while trySquare.start_node == False :
-            trySquare = lastTrailSquare
-            if 0 in trySquare.compass == True :
+            printMap(squares)
+            trySquare = trySquare.previous
+            if (0 in trySquare.compass) == True :
                 backtrack = True
-        
+            
+            trySquare.color = "magenta"
+            travel_coor = [trySquare.x, trySquare.y]
+            if backtrack :
+                break
         if backtrack :
             continue
         print("failed to find a route!")
         break
+
+    trySquare.blockType = "X"
+    trySquare.color     = "white"
+    printMap(squares)
+    print("congratulations - you won!")
 except KeyboardInterrupt :
     print('Interrupted')
     try:
